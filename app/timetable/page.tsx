@@ -1,21 +1,9 @@
+import Navbar from "@/components/Navbar";
+
 export default function TimetablePage() {
   return (
     <main className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="border-b bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <h1 className="text-2xl font-extrabold text-gray-950">
-            KTU <span className="text-blue-600">Mate</span>
-          </h1>
-
-          <a
-            href="/dashboard"
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 transition hover:bg-gray-100"
-          >
-            Dashboard
-          </a>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Page Content */}
       <section className="mx-auto max-w-5xl px-6 py-10">

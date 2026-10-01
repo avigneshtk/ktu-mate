@@ -9,10 +9,22 @@ export default function AviguChat() {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, sendMessage, status, stop } = useChat({
+  const {
+    messages,
+    sendMessage,
+    status,
+    stop,
+    error,
+    regenerate,
+    clearError,
+  } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
     }),
+
+    onError: (error) => {
+      console.error("Avigu chat error:", error);
+    },
   });
 
   const isStreaming = status === "submitted" || status === "streaming";
@@ -32,11 +44,21 @@ export default function AviguChat() {
       return;
     }
 
+    clearError();
     setInput("");
 
     await sendMessage({
       text,
     });
+  }
+
+  async function handleRetry() {
+    clearError();
+    await regenerate();
+  }
+
+  function useExample(text: string) {
+    setInput(text);
   }
 
   return (
@@ -57,6 +79,32 @@ export default function AviguChat() {
                 Ask me about your studies, KTU exams, DSA, programming,
                 or how you can improve your preparation.
               </p>
+
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => useExample("What's my DSA progress?")}
+                  className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:bg-blue-50"
+                >
+                  📊 Check my DSA progress
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => useExample("Help me prepare for my KTU exams")}
+                  className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:bg-blue-50"
+                >
+                  📚 KTU exam preparation
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => useExample("Give me a DSA study plan")}
+                  className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:bg-blue-50"
+                >
+                  💻 DSA study plan
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -113,12 +161,36 @@ export default function AviguChat() {
             </div>
           ))}
 
+          {error && (
+            <div className="flex justify-start">
+              <div className="max-w-[85%] rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-800">
+                <p className="font-semibold">
+                  Something went wrong
+                </p>
+
+                <p className="mt-1 text-red-700">
+                  Avigu couldn&apos;t complete that response.
+                  Please try again.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={handleRetry}
+                  disabled={isStreaming}
+                  className="mt-3 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
+                >
+                  Try again
+                </button>
+              </div>
+            </div>
+          )}
+
           {status === "submitted" && (
             <div className="flex justify-start">
-              <div className="rounded-2xl bg-gray-100 px-4 py-3 text-sm text-gray-600">
-                <span className="animate-pulse">
-                  Avigu is thinking...
-                </span>
+              <div className="w-full max-w-[85%] rounded-2xl bg-gray-100 px-4 py-4">
+                <div className="mb-2 h-3 w-16 animate-pulse rounded bg-gray-300" />
+                <div className="h-3 w-3/4 animate-pulse rounded bg-gray-300" />
+                <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-gray-300" />
               </div>
             </div>
           )}

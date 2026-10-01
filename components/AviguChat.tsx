@@ -2,6 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import ReactMarkdown from "react-markdown";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 export default function AviguChat() {
@@ -81,13 +82,27 @@ export default function AviguChat() {
                   {message.role === "user" ? "You" : "Avigu"}
                 </p>
 
-                <div className="whitespace-pre-wrap text-sm leading-6">
+                <div className="text-sm leading-6">
                   {message.parts.map((part, index) => {
                     if (part.type === "text") {
                       return (
-                        <span key={index}>
+                        <ReactMarkdown
+                          key={index}
+                          components={{
+                            a: ({ children, href }) => (
+                              <a
+                                href={href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-semibold underline"
+                              >
+                                {children}
+                              </a>
+                            ),
+                          }}
+                        >
                           {part.text}
-                        </span>
+                        </ReactMarkdown>
                       );
                     }
 

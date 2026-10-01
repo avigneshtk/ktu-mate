@@ -1,5 +1,11 @@
-import { convertToModelMessages, streamText, UIMessage } from "ai";
+import {
+  convertToModelMessages,
+  stepCountIs,
+  streamText,
+  UIMessage,
+} from "ai";
 import { aviguModel, aviguSystemPrompt } from "@/lib/ai/config";
+import { dsaProgressTool } from "@/lib/ai/tools/dsaProgress";
 
 export const maxDuration = 30;
 
@@ -10,6 +16,12 @@ export async function POST(req: Request) {
     model: aviguModel,
     system: aviguSystemPrompt,
     messages: await convertToModelMessages(messages),
+
+    tools: {
+      dsaProgress: dsaProgressTool,
+    },
+
+    stopWhen: stepCountIs(5),
   });
 
   return result.toUIMessageStreamResponse();

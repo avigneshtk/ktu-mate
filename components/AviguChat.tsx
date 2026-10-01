@@ -27,7 +27,8 @@ export default function AviguChat() {
     },
   });
 
-  const isStreaming = status === "submitted" || status === "streaming";
+  const isStreaming =
+    status === "submitted" || status === "streaming";
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
@@ -35,10 +36,35 @@ export default function AviguChat() {
     });
   }, [messages]);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleInputChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    console.log(
+      "CHANGE EVENT:",
+      event.currentTarget.value
+    );
+
+    setInput(event.currentTarget.value);
+  }
+
+  function handleInput(
+    event: React.FormEvent<HTMLInputElement>
+  ) {
+    const value = event.currentTarget.value;
+
+    console.log("INPUT EVENT:", value);
+
+    setInput(value);
+  }
+
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
     const text = input.trim();
+
+    console.log("SUBMIT INPUT:", text);
 
     if (!text || isStreaming) {
       return;
@@ -76,14 +102,19 @@ export default function AviguChat() {
               </h3>
 
               <p className="mt-2 max-w-md text-gray-600">
-                Ask me about your studies, KTU exams, DSA, programming,
-                or how you can improve your preparation.
+                Ask me about your studies, KTU exams, DSA,
+                programming, or how you can improve your
+                preparation.
               </p>
 
               <div className="mt-5 flex flex-wrap justify-center gap-2">
                 <button
                   type="button"
-                  onClick={() => useExample("What's my DSA progress?")}
+                  onClick={() =>
+                    useExample(
+                      "What's my DSA progress?"
+                    )
+                  }
                   className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:bg-blue-50"
                 >
                   📊 Check my DSA progress
@@ -91,7 +122,11 @@ export default function AviguChat() {
 
                 <button
                   type="button"
-                  onClick={() => useExample("Help me prepare for my KTU exams")}
+                  onClick={() =>
+                    useExample(
+                      "Help me prepare for my KTU exams"
+                    )
+                  }
                   className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:bg-blue-50"
                 >
                   📚 KTU exam preparation
@@ -99,7 +134,11 @@ export default function AviguChat() {
 
                 <button
                   type="button"
-                  onClick={() => useExample("Give me a DSA study plan")}
+                  onClick={() =>
+                    useExample(
+                      "Give me a DSA study plan"
+                    )
+                  }
                   className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:bg-blue-50"
                 >
                   💻 DSA study plan
@@ -127,7 +166,9 @@ export default function AviguChat() {
                 }`}
               >
                 <p className="mb-1 text-xs font-semibold opacity-70">
-                  {message.role === "user" ? "You" : "Avigu"}
+                  {message.role === "user"
+                    ? "You"
+                    : "Avigu"}
                 </p>
 
                 <div className="text-sm leading-6">
@@ -137,7 +178,10 @@ export default function AviguChat() {
                         <ReactMarkdown
                           key={index}
                           components={{
-                            a: ({ children, href }) => (
+                            a: ({
+                              children,
+                              href,
+                            }) => (
                               <a
                                 href={href}
                                 target="_blank"
@@ -169,8 +213,8 @@ export default function AviguChat() {
                 </p>
 
                 <p className="mt-1 text-red-700">
-                  Avigu couldn&apos;t complete that response.
-                  Please try again.
+                  Avigu couldn&apos;t complete that
+                  response. Please try again.
                 </p>
 
                 <button
@@ -189,7 +233,9 @@ export default function AviguChat() {
             <div className="flex justify-start">
               <div className="w-full max-w-[85%] rounded-2xl bg-gray-100 px-4 py-4">
                 <div className="mb-2 h-3 w-16 animate-pulse rounded bg-gray-300" />
+
                 <div className="h-3 w-3/4 animate-pulse rounded bg-gray-300" />
+
                 <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-gray-300" />
               </div>
             </div>
@@ -218,7 +264,8 @@ export default function AviguChat() {
         >
           <input
             value={input}
-            onChange={(event) => setInput(event.target.value)}
+            onChange={handleInputChange}
+            onInput={handleInput}
             disabled={isStreaming}
             placeholder="Ask Avigu something..."
             className="min-w-0 flex-1 rounded-lg border-2 border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-blue-500 disabled:bg-gray-100"

@@ -72,7 +72,7 @@ export default function AviguChat() {
     await regenerate();
   }
 
-  function useExample(text: string) {
+  function handleExample(text: string) {
     setInput(text);
   }
 
@@ -112,7 +112,7 @@ export default function AviguChat() {
                 <button
                   type="button"
                   onClick={() =>
-                    useExample(
+                    handleExample(
                       "What's my DSA progress?"
                     )
                   }
@@ -124,7 +124,7 @@ export default function AviguChat() {
                 <button
                   type="button"
                   onClick={() =>
-                    useExample(
+                    handleExample(
                       "Help me prepare for my KTU exams"
                     )
                   }
@@ -136,7 +136,7 @@ export default function AviguChat() {
                 <button
                   type="button"
                   onClick={() =>
-                    useExample(
+                    handleExample(
                       "Give me a DSA study plan"
                     )
                   }

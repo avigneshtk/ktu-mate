@@ -1,3 +1,4 @@
+import Link from "next/link";
 import ShaderHero from "@/components/ShaderHero/ShaderHero";
 
 export default function ShaderHeroPage() {
@@ -21,12 +22,12 @@ export default function ShaderHeroPage() {
           </p>
 
           <div className="mt-8 flex justify-center gap-4">
-            <a
+            <Link
               href="/"
               className="rounded-full bg-white px-6 py-3 font-medium text-black transition hover:bg-white/90"
             >
               Explore KTU Mate
-            </a>
+            </Link>
           </div>
         </div>
       </section>

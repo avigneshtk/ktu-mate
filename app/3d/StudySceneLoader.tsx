@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import StudyFallback from "./StudyFallback";
 
 const StudyScene = dynamic(() => import("./StudyScene"), {
@@ -14,10 +14,11 @@ const StudyScene = dynamic(() => import("./StudyScene"), {
 });
 
 export default function StudySceneLoader() {
-  const [useFallback, setUseFallback] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [useFallback] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
 
-  useEffect(() => {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
@@ -26,17 +27,8 @@ export default function StudySceneLoader() {
       typeof navigator.hardwareConcurrency === "number" &&
       navigator.hardwareConcurrency <= 2;
 
-    setUseFallback(reducedMotion || lowPower);
-    setReady(true);
-  }, []);
-
-  if (!ready) {
-    return (
-      <div className="flex h-[420px] w-full items-center justify-center rounded-2xl bg-slate-950 text-sm text-slate-400 sm:h-[600px]">
-        Preparing 3D experience...
-      </div>
-    );
-  }
+    return reducedMotion || lowPower;
+  });
 
   if (useFallback) {
     return <StudyFallback />;

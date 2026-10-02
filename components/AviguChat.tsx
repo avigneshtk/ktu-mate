@@ -39,22 +39,13 @@ export default function AviguChat() {
   function handleInputChange(
     event: React.ChangeEvent<HTMLInputElement>
   ) {
-    console.log(
-      "CHANGE EVENT:",
-      event.currentTarget.value
-    );
-
     setInput(event.currentTarget.value);
   }
 
   function handleInput(
     event: React.FormEvent<HTMLInputElement>
   ) {
-    const value = event.currentTarget.value;
-
-    console.log("INPUT EVENT:", value);
-
-    setInput(value);
+    setInput(event.currentTarget.value);
   }
 
   async function handleSubmit(
@@ -63,8 +54,6 @@ export default function AviguChat() {
     event.preventDefault();
 
     const text = input.trim();
-
-    console.log("SUBMIT INPUT:", text);
 
     if (!text || isStreaming) {
       return;
@@ -88,25 +77,37 @@ export default function AviguChat() {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-300 bg-white shadow-sm">
-      <div className="h-[500px] overflow-y-auto p-5">
+    <section
+      aria-label="Avigu AI chat"
+      className="overflow-hidden rounded-2xl border border-gray-300 bg-white shadow-sm"
+    >
+      {/* Chat messages */}
+      <div
+        className="h-[500px] overflow-y-auto p-5"
+        aria-label="Chat messages"
+      >
         {messages.length === 0 && (
           <div className="flex min-h-full items-center justify-center text-center">
             <div>
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-3xl">
+              {/* Decorative icon */}
+              <div
+                className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-3xl"
+                aria-hidden="true"
+              >
                 🤖
               </div>
 
-              <h3 className="mt-4 text-xl font-bold text-gray-950">
+              <h2 className="mt-4 text-xl font-bold text-gray-950">
                 Hi! I&apos;m Avigu
-              </h3>
+              </h2>
 
-              <p className="mt-2 max-w-md text-gray-600">
+              <p className="mx-auto mt-2 max-w-md text-gray-600">
                 Ask me about your studies, KTU exams, DSA,
                 programming, or how you can improve your
                 preparation.
               </p>
 
+              {/* Example prompts */}
               <div className="mt-5 flex flex-wrap justify-center gap-2">
                 <button
                   type="button"
@@ -115,7 +116,7 @@ export default function AviguChat() {
                       "What's my DSA progress?"
                     )
                   }
-                  className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:bg-blue-50"
+                  className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
                 >
                   📊 Check my DSA progress
                 </button>
@@ -127,7 +128,7 @@ export default function AviguChat() {
                       "Help me prepare for my KTU exams"
                     )
                   }
-                  className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:bg-blue-50"
+                  className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
                 >
                   📚 KTU exam preparation
                 </button>
@@ -139,7 +140,7 @@ export default function AviguChat() {
                       "Give me a DSA study plan"
                     )
                   }
-                  className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:bg-blue-50"
+                  className="rounded-full border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
                 >
                   💻 DSA study plan
                 </button>
@@ -159,6 +160,11 @@ export default function AviguChat() {
               }`}
             >
               <div
+                aria-live={
+                  message.role === "assistant"
+                    ? "polite"
+                    : undefined
+                }
                 className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                   message.role === "user"
                     ? "bg-blue-600 text-white"
@@ -186,7 +192,7 @@ export default function AviguChat() {
                                 href={href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="font-semibold underline"
+                                className="font-semibold underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
                               >
                                 {children}
                               </a>
@@ -205,9 +211,13 @@ export default function AviguChat() {
             </div>
           ))}
 
+          {/* Error state */}
           {error && (
             <div className="flex justify-start">
-              <div className="max-w-[85%] rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-800">
+              <div
+                role="alert"
+                className="max-w-[85%] rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-800"
+              >
                 <p className="font-semibold">
                   Something went wrong
                 </p>
@@ -221,7 +231,7 @@ export default function AviguChat() {
                   type="button"
                   onClick={handleRetry}
                   disabled={isStreaming}
-                  className="mt-3 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
+                  className="mt-3 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-red-300"
                 >
                   Try again
                 </button>
@@ -229,14 +239,18 @@ export default function AviguChat() {
             </div>
           )}
 
+          {/* Loading state */}
           {status === "submitted" && (
-            <div className="flex justify-start">
+            <div
+              className="flex justify-start"
+              aria-label="Avigu is preparing a response"
+            >
               <div className="w-full max-w-[85%] rounded-2xl bg-gray-100 px-4 py-4">
                 <div className="mb-2 h-3 w-16 animate-pulse rounded bg-gray-300" />
 
-                <div className="h-3 w-3/4 animate-pulse rounded bg-gray-300" />
+                <div className="h-3 w-3/4 rounded bg-gray-300" />
 
-                <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-gray-300" />
+                <div className="mt-2 h-3 w-1/2 rounded bg-gray-300" />
               </div>
             </div>
           )}
@@ -245,13 +259,14 @@ export default function AviguChat() {
         </div>
       </div>
 
+      {/* Chat controls */}
       <div className="border-t border-gray-200 p-4">
         {isStreaming && (
           <div className="mb-3 flex justify-end">
             <button
               type="button"
               onClick={() => stop()}
-              className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+              className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
             >
               Stop
             </button>
@@ -262,24 +277,33 @@ export default function AviguChat() {
           onSubmit={handleSubmit}
           className="flex flex-col gap-3 sm:flex-row"
         >
+          <label
+            htmlFor="avigu-chat-input"
+            className="sr-only"
+          >
+            Ask Avigu a question
+          </label>
+
           <input
+            id="avigu-chat-input"
+            type="text"
             value={input}
             onChange={handleInputChange}
             onInput={handleInput}
             disabled={isStreaming}
             placeholder="Ask Avigu something..."
-            className="min-w-0 flex-1 rounded-lg border-2 border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-blue-500 disabled:bg-gray-100"
+            className="min-w-0 flex-1 rounded-lg border-2 border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:bg-gray-100"
           />
 
           <button
             type="submit"
             disabled={!input.trim() || isStreaming}
-            className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+            className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400"
           >
             Send
           </button>
         </form>
       </div>
-    </div>
+    </section>
   );
 }

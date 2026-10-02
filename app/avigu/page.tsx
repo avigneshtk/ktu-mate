@@ -12,9 +12,9 @@ export default function AviguPage() {
             Your AI Academic Agent
           </p>
 
-          <h2 className="mt-2 text-4xl font-bold text-gray-950">
+          <h1 className="mt-2 text-4xl font-bold text-gray-950">
             Meet Avigu 🤖
-          </h2>
+          </h1>
 
           <p className="mx-auto mt-4 max-w-2xl text-gray-600">
             Avigu analyses your academic performance and helps you decide

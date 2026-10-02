@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 const NAV_ITEMS = [
@@ -22,7 +22,24 @@ const ACCOUNT_ITEMS = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleLogout() {
+    setLoggingOut(true);
+
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      router.push("/login");
+      router.refresh();
+    } catch {
+      setLoggingOut(false);
+    }
+  }
 
   return (
     <nav
@@ -38,14 +55,17 @@ export default function Navbar() {
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 via-indigo-600 to-cyan-500 text-sm font-extrabold text-white shadow-lg shadow-purple-500/25 transition-transform motion-safe:group-hover:scale-105">
               KT
             </span>
+
             <span>
               KTU <span className="gradient-text font-black">Mate</span>
             </span>
           </Link>
 
+          {/* Desktop Navigation */}
           <div className="hidden items-center gap-1 xl:flex">
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href;
+
               return (
                 <Link
                   key={item.href}
@@ -69,10 +89,14 @@ export default function Navbar() {
               );
             })}
 
-            <div className="mx-2 h-5 w-px bg-white/10" aria-hidden="true" />
+            <div
+              className="mx-2 h-5 w-px bg-white/10"
+              aria-hidden="true"
+            />
 
             {ACCOUNT_ITEMS.map((item) => {
               const isActive = pathname === item.href;
+
               return (
                 <Link
                   key={item.href}
@@ -88,8 +112,19 @@ export default function Navbar() {
                 </Link>
               );
             })}
+
+            {/* Logout */}
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loggingOut ? "Logging out..." : "Logout"}
+            </button>
           </div>
 
+          {/* Mobile Menu Button */}
           <button
             type="button"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -103,10 +138,12 @@ export default function Navbar() {
             <span className="text-base" aria-hidden="true">
               {menuOpen ? "✕" : "☰"}
             </span>
+
             <span>{menuOpen ? "Close" : "Menu"}</span>
           </button>
         </div>
 
+        {/* Mobile Navigation */}
         {menuOpen && (
           <div
             id="mobile-navigation"
@@ -114,6 +151,7 @@ export default function Navbar() {
           >
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href;
+
               return (
                 <Link
                   key={item.href}
@@ -130,8 +168,10 @@ export default function Navbar() {
                     {item.isAi && (
                       <span className="h-2 w-2 rounded-full bg-cyan-400 motion-safe:animate-pulse" />
                     )}
+
                     {item.label}
                   </span>
+
                   {isActive && (
                     <span className="text-xs text-purple-400">Active</span>
                   )}
@@ -148,6 +188,7 @@ export default function Navbar() {
             >
               Profile
             </Link>
+
             <Link
               href="/settings"
               onClick={() => setMenuOpen(false)}
@@ -155,6 +196,16 @@ export default function Navbar() {
             >
               Settings
             </Link>
+
+            {/* Mobile Logout */}
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-center text-sm font-semibold text-red-300 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loggingOut ? "Logging out..." : "Logout"}
+            </button>
           </div>
         )}
       </div>

@@ -94,12 +94,12 @@ export default function StudyScene() {
         </Canvas>
       </div>
 
-      <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 text-center">
-        <p className="text-sm font-semibold text-slate-700">
+      <div className="mt-4 rounded-xl border border-white/10 bg-slate-900/60 p-4 text-center">
+        <p className="text-sm font-semibold text-slate-200">
           Interactive Book
         </p>
 
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-400">
           Click the book to change its color.
         </p>
 

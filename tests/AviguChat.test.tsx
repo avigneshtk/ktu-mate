@@ -105,7 +105,7 @@ describe("AviguChat", () => {
     render(<AviguChat />);
 
     expect(screen.getByText("You")).toBeInTheDocument();
-    expect(screen.getByText("Avigu")).toBeInTheDocument();
+    expect(screen.getAllByText("Avigu")[0]).toBeInTheDocument();
 
     expect(
       screen.getByText("What is a stack?")

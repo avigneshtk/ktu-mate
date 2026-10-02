@@ -1,46 +1,22 @@
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
+import PageHeader from "@/components/PageHeader";
+import EmptyState from "@/components/EmptyState";
 
 export default function SeriesTest2Page() {
   return (
-    <main className="min-h-screen bg-gray-50">
-      <Navbar />
+    <AppShell maxWidth="max-w-5xl">
+      <PageHeader
+        eyebrow="Academic Performance"
+        title="Series Test 2"
+        description="This existing workspace will later accept subjects, marks, questions, and answers for calculated analysis."
+      />
 
-      {/* Page Content */}
-      <section className="mx-auto max-w-5xl px-6 py-10">
-        <p className="text-sm font-semibold text-blue-600">
-          Academic Performance
-        </p>
-
-        <h2 className="mt-2 text-3xl font-bold text-gray-950">
-          Series Test 2
-        </h2>
-
-        <p className="mt-2 text-gray-600">
-          Add your Series Test 2 marks, questions, and answers here.
-        </p>
-
-        {/* Placeholder */}
-        <div className="mt-10 rounded-2xl border border-gray-300 bg-white p-8 shadow-sm">
-          <h3 className="text-xl font-bold text-gray-950">
-            Series Test 2 Data
-          </h3>
-
-          <p className="mt-3 text-gray-600">
-            This section will later allow you to enter your subjects,
-            marks, questions, and answers.
-          </p>
-
-          <div className="mt-6 rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
-            <p className="font-medium text-gray-700">
-              Series Test 2 input area
-            </p>
-
-            <p className="mt-1 text-sm text-gray-500">
-              Functionality will be added in a later stage.
-            </p>
-          </div>
-        </div>
-      </section>
-    </main>
+      <div className="mt-10 rounded-2xl border border-white/10 bg-slate-900/40 p-8">
+        <EmptyState
+          title="Series Test 2 input"
+          description="Mark entry is not wired yet. The route is preserved so Analysis can grow from this existing page instead of replacing it."
+        />
+      </div>
+    </AppShell>
   );
 }

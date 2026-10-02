@@ -1,89 +1,54 @@
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
+import PageHeader from "@/components/PageHeader";
+import EmptyState from "@/components/EmptyState";
+import { getSession } from "@/lib/auth/session";
+import { redirect } from "next/navigation";
 
-export default function LeetCodePage() {
+export default async function LeetCodePage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  // Since we don't have a reliable LeetCode scraping DB model yet, we'll show an empty state placeholder
+  // that aligns with the requirement "Never fabricate LeetCode statistics."
   return (
-    <main className="min-h-screen bg-gray-50">
-      <Navbar />
+    <AppShell>
+      <PageHeader
+        eyebrow="External Integration"
+        title="LeetCode Progress"
+        description="Connect your LeetCode account to track your interview prep alongside KTU academics."
+      />
 
-      {/* Page Content */}
-      <section className="mx-auto max-w-6xl px-6 py-10">
-        <div className="text-center">
-          <p className="text-sm font-semibold text-blue-600">
-            Coding Practice
-          </p>
+      <EmptyState
+        tone="amber"
+        title="No LeetCode Account Connected"
+        description="We currently don't have a LeetCode username linked to your profile."
+      >
+        <button className="mt-4 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500">
+          Connect Account
+        </button>
+      </EmptyState>
 
-          <h2 className="mt-2 text-4xl font-bold text-gray-950">
-            LeetCode Practice
-          </h2>
-
-          <p className="mx-auto mt-4 max-w-2xl text-gray-600">
-            Track your LeetCode practice, solve problems, and improve
-            your problem-solving skills.
-          </p>
-        </div>
-
-        {/* Progress Cards */}
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-xl border border-gray-300 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-950">
-              Problems Solved
-            </h3>
-
-            <p className="mt-3 text-3xl font-bold text-blue-600">
-              0
-            </p>
-
-            <p className="mt-1 text-sm text-gray-600">
-              Problems completed
-            </p>
+      <div className="mt-8 rounded-xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-md opacity-50 pointer-events-none grayscale">
+        <h3 className="text-lg font-bold text-white mb-4">Account Snapshot (Preview)</h3>
+        <div className="grid gap-4 sm:grid-cols-4">
+          <div className="rounded-lg border border-white/5 bg-[#090d16] p-4 text-center">
+            <p className="text-xs text-slate-400 font-bold uppercase">Total Solved</p>
+            <p className="mt-1 text-2xl font-black text-white">---</p>
           </div>
-
-          <div className="rounded-xl border border-gray-300 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-950">
-              Easy
-            </h3>
-
-            <p className="mt-3 text-3xl font-bold text-gray-950">
-              0
-            </p>
-
-            <p className="mt-1 text-sm text-gray-600">
-              Easy problems solved
-            </p>
+          <div className="rounded-lg border border-white/5 bg-[#090d16] p-4 text-center">
+            <p className="text-xs text-emerald-500 font-bold uppercase">Easy</p>
+            <p className="mt-1 text-2xl font-black text-white">---</p>
           </div>
-
-          <div className="rounded-xl border border-gray-300 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-950">
-              Medium
-            </h3>
-
-            <p className="mt-3 text-3xl font-bold text-gray-950">
-              0
-            </p>
-
-            <p className="mt-1 text-sm text-gray-600">
-              Medium problems solved
-            </p>
+          <div className="rounded-lg border border-white/5 bg-[#090d16] p-4 text-center">
+            <p className="text-xs text-amber-500 font-bold uppercase">Medium</p>
+            <p className="mt-1 text-2xl font-black text-white">---</p>
+          </div>
+          <div className="rounded-lg border border-white/5 bg-[#090d16] p-4 text-center">
+            <p className="text-xs text-rose-500 font-bold uppercase">Hard</p>
+            <p className="mt-1 text-2xl font-black text-white">---</p>
           </div>
         </div>
-
-        {/* Practice Area */}
-        <div className="mt-10 rounded-2xl border-2 border-dashed border-blue-300 bg-white p-8 text-center">
-          <h3 className="text-xl font-bold text-gray-950">
-            LeetCode Progress
-          </h3>
-
-          <p className="mx-auto mt-3 max-w-2xl text-gray-600">
-            LeetCode integration, problem recommendations, solved
-            problem tracking, and personalized coding goals will be
-            added later.
-          </p>
-
-          <p className="mt-4 text-sm font-medium text-blue-600">
-            LeetCode functionality will be added in a later stage.
-          </p>
-        </div>
-      </section>
-    </main>
+      </div>
+    </AppShell>
   );
 }

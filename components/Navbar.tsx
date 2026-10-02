@@ -1,81 +1,93 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
+
+const NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/avigu", label: "Avigu", isAi: true },
+  { href: "/dsa", label: "DSA" },
+  { href: "/leetcode", label: "LeetCode" },
+  { href: "/timetable", label: "Timetable" },
+  { href: "/analysis", label: "Analysis" },
+  { href: "/streak", label: "Streak" },
+  { href: "/3d", label: "3D Desk" },
+];
+
+const ACCOUNT_ITEMS = [
+  { href: "/profile", label: "Profile" },
+  { href: "/settings", label: "Settings" },
+];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <nav
       aria-label="Main navigation"
-      className="border-b bg-white px-6 py-4"
+      className="sticky top-0 z-50 border-b border-white/10 bg-[#090d16]/80 px-4 py-3.5 backdrop-blur-xl sm:px-6"
     >
       <div className="mx-auto max-w-7xl">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <Link
             href="/"
-            className="rounded text-2xl font-extrabold text-gray-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            className="group flex items-center gap-2 rounded-lg text-xl font-black tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#090d16] sm:text-2xl"
           >
-            KTU <span className="text-blue-600">Mate</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 via-indigo-600 to-cyan-500 text-sm font-extrabold text-white shadow-lg shadow-purple-500/25 transition-transform motion-safe:group-hover:scale-105">
+              KT
+            </span>
+            <span>
+              KTU <span className="gradient-text font-black">Mate</span>
+            </span>
           </Link>
 
-          <div className="hidden items-center gap-6 md:flex">
-            <Link
-              href="/dashboard"
-              className="rounded font-medium text-gray-700 transition hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              Dashboard
-            </Link>
+          <div className="hidden items-center gap-1 xl:flex">
+            {NAV_ITEMS.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`relative rounded-lg px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#090d16] ${
+                    isActive
+                      ? "border border-purple-500/30 bg-purple-600/15 font-semibold text-purple-300 shadow-sm"
+                      : "text-slate-300 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  {item.isAi ? (
+                    <span className="flex items-center gap-1.5">
+                      <span className="flex h-2 w-2 rounded-full bg-cyan-400 motion-safe:animate-pulse" />
+                      {item.label}
+                    </span>
+                  ) : (
+                    item.label
+                  )}
+                </Link>
+              );
+            })}
 
-            <Link
-              href="/analysis"
-              className="rounded font-medium text-gray-700 transition hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              Analysis
-            </Link>
+            <div className="mx-2 h-5 w-px bg-white/10" aria-hidden="true" />
 
-            <Link
-              href="/avigu"
-              className="rounded font-medium text-gray-700 transition hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              Avigu
-            </Link>
-
-            <Link
-              href="/timetable"
-              className="rounded font-medium text-gray-700 transition hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              Timetable
-            </Link>
-
-            <Link
-              href="/dsa"
-              className="rounded font-medium text-gray-700 transition hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              DSA
-            </Link>
-
-            <Link
-              href="/leetcode"
-              className="rounded font-medium text-gray-700 transition hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              LeetCode
-            </Link>
-
-            <Link
-              href="/streak"
-              className="rounded font-medium text-gray-700 transition hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              Streak
-            </Link>
-
-            <Link
-              href="/profile"
-              className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              Profile
-            </Link>
+            {ACCOUNT_ITEMS.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#090d16] ${
+                    item.href === "/settings"
+                      ? "border border-white/10 bg-white/5 text-slate-100 hover:bg-white/10"
+                      : "bg-gradient-to-r from-purple-600 to-cyan-600 text-white shadow-md shadow-purple-600/20 hover:from-purple-500 hover:to-cyan-500"
+                  } ${isActive ? "ring-2 ring-purple-400/50" : ""}`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </div>
 
           <button
@@ -84,83 +96,64 @@ export default function Navbar() {
             aria-expanded={menuOpen}
             aria-controls="mobile-navigation"
             aria-label={
-              menuOpen
-                ? "Close navigation menu"
-                : "Open navigation menu"
+              menuOpen ? "Close navigation menu" : "Open navigation menu"
             }
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 md:hidden"
+            className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-semibold text-slate-200 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#090d16] xl:hidden"
           >
-            {menuOpen ? "Close" : "Menu"}
+            <span className="text-base" aria-hidden="true">
+              {menuOpen ? "✕" : "☰"}
+            </span>
+            <span>{menuOpen ? "Close" : "Menu"}</span>
           </button>
         </div>
 
         {menuOpen && (
           <div
             id="mobile-navigation"
-            className="mt-4 flex flex-col gap-2 border-t pt-4 md:hidden"
+            className="mt-3 flex flex-col gap-1 rounded-xl border border-white/10 bg-[#0f172a]/95 p-3 shadow-2xl backdrop-blur-2xl xl:hidden"
           >
-            <Link
-              href="/dashboard"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-lg px-4 py-3 font-medium text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              Dashboard
-            </Link>
+            {NAV_ITEMS.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`flex items-center justify-between rounded-lg px-3.5 py-2.5 text-sm font-medium transition ${
+                    isActive
+                      ? "border border-purple-500/30 bg-purple-600/20 font-semibold text-purple-300"
+                      : "text-slate-300 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    {item.isAi && (
+                      <span className="h-2 w-2 rounded-full bg-cyan-400 motion-safe:animate-pulse" />
+                    )}
+                    {item.label}
+                  </span>
+                  {isActive && (
+                    <span className="text-xs text-purple-400">Active</span>
+                  )}
+                </Link>
+              );
+            })}
 
-            <Link
-              href="/analysis"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-lg px-4 py-3 font-medium text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              Analysis
-            </Link>
-
-            <Link
-              href="/avigu"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-lg px-4 py-3 font-medium text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              Avigu
-            </Link>
-
-            <Link
-              href="/timetable"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-lg px-4 py-3 font-medium text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              Timetable
-            </Link>
-
-            <Link
-              href="/dsa"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-lg px-4 py-3 font-medium text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              DSA
-            </Link>
-
-            <Link
-              href="/leetcode"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-lg px-4 py-3 font-medium text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              LeetCode
-            </Link>
-
-            <Link
-              href="/streak"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-lg px-4 py-3 font-medium text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            >
-              Streak
-            </Link>
+            <div className="my-2 border-t border-white/10" />
 
             <Link
               href="/profile"
               onClick={() => setMenuOpen(false)}
-              className="rounded-lg bg-blue-600 px-4 py-3 text-center font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+              className="rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-md shadow-purple-600/20 hover:from-purple-500 hover:to-cyan-500"
             >
               Profile
+            </Link>
+            <Link
+              href="/settings"
+              onClick={() => setMenuOpen(false)}
+              className="rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-white/10"
+            >
+              Settings
             </Link>
           </div>
         )}

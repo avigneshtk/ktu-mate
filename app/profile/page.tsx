@@ -1,100 +1,105 @@
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
+import PageHeader from "@/components/PageHeader";
+import { getSession } from "@/lib/auth/session";
+import { prisma } from "@/lib/db/prisma";
+import { redirect } from "next/navigation";
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    include: {
+      profile: true,
+      studyStreak: true,
+      _count: {
+        select: { dsaRecords: true, timetable: true },
+      },
+    },
+  });
+
+  if (!user || !user.profile) redirect("/login");
+
+  const profile = user.profile;
+
   return (
-    <main className="min-h-screen bg-gray-50">
-      <Navbar />
+    <AppShell>
+      <PageHeader
+        eyebrow="Account Settings"
+        title="Student Profile"
+        description="Manage your personal information and academic details."
+      />
 
-      {/* Profile */}
-      <section className="mx-auto max-w-5xl px-6 py-10">
-        <div>
-          <p className="text-sm font-semibold text-blue-600">
-            Student Account
-          </p>
-
-          <h2 className="mt-2 text-3xl font-bold text-gray-950">
-            My Profile
-          </h2>
-
-          <p className="mt-2 text-gray-600">
-            Manage your KTU Mate profile and academic information.
-          </p>
+      <div className="mt-8 grid gap-8 md:grid-cols-[1fr_2fr]">
+        <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-md">
+          <div className="flex flex-col items-center text-center">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 text-3xl font-bold text-white shadow-lg">
+              {profile.fullName.charAt(0).toUpperCase()}
+            </div>
+            <h2 className="mt-4 text-xl font-bold text-white">{profile.fullName}</h2>
+            <p className="text-sm text-cyan-400">@{profile.username}</p>
+            
+            <div className="mt-6 w-full space-y-3 rounded-xl bg-[#090d16] p-4 text-left">
+              <div>
+                <p className="text-xs text-slate-400">Email</p>
+                <p className="text-sm font-medium text-slate-200">{user.email}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Joined</p>
+                <p className="text-sm font-medium text-slate-200">
+                  {new Date(user.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Profile Card */}
-        <div className="mt-10 rounded-2xl border border-gray-300 bg-white p-8 shadow-sm">
-          <div className="flex flex-col items-center gap-5 sm:flex-row">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-blue-100 text-4xl">
-              👤
-            </div>
-
-            <div className="text-center sm:text-left">
-              <h3 className="text-2xl font-bold text-gray-950">
-                Student Name
-              </h3>
-
-              <p className="mt-1 text-gray-600">
-                KTU CSE Student
-              </p>
-            </div>
-          </div>
-
-          {/* Information */}
-          <div className="mt-10 grid gap-6 sm:grid-cols-2">
-            <div className="rounded-xl border border-gray-300 p-5">
-              <p className="text-sm font-semibold text-gray-500">
-                Name
-              </p>
-
-              <p className="mt-2 font-semibold text-gray-950">
-                Student Name
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-gray-300 p-5">
-              <p className="text-sm font-semibold text-gray-500">
-                Email
-              </p>
-
-              <p className="mt-2 font-semibold text-gray-950">
-                student@example.com
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-gray-300 p-5">
-              <p className="text-sm font-semibold text-gray-500">
-                Branch
-              </p>
-
-              <p className="mt-2 font-semibold text-gray-950">
-                Computer Science & Engineering
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-gray-300 p-5">
-              <p className="text-sm font-semibold text-gray-500">
-                Semester
-              </p>
-
-              <p className="mt-2 font-semibold text-gray-950">
-                Semester 3
-              </p>
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-md">
+            <h3 className="text-lg font-bold text-white">Academic Information</h3>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-xs text-slate-400">College</p>
+                <p className="text-sm font-medium text-slate-200">{profile.college}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Course</p>
+                <p className="text-sm font-medium text-slate-200">{profile.course}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Semester</p>
+                <p className="text-sm font-medium text-slate-200">Semester {profile.semester}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Academic Year</p>
+                <p className="text-sm font-medium text-slate-200">{profile.academicYear}</p>
+              </div>
             </div>
           </div>
 
-          {/* Future Functionality */}
-          <div className="mt-8 rounded-xl border-2 border-dashed border-blue-300 p-8 text-center">
-            <h3 className="text-lg font-bold text-gray-950">
-              Profile Settings
-            </h3>
-
-            <p className="mt-2 text-sm text-gray-600">
-              Profile editing, KTU academic details, preferences,
-              and account settings will be added later.
+          <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-md">
+            <h3 className="text-lg font-bold text-white">Bio</h3>
+            <p className="mt-3 text-sm text-slate-300 leading-relaxed">
+              {profile.bio || "No bio provided."}
             </p>
           </div>
+          
+          <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-md">
+            <h3 className="text-lg font-bold text-white">Account Actions</h3>
+            <div className="mt-4 flex gap-4">
+               <form action="/api/auth/logout" method="POST">
+                 <button
+                   type="submit"
+                   className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 transition"
+                 >
+                   Log Out
+                 </button>
+               </form>
+            </div>
+          </div>
         </div>
-      </section>
-    </main>
+      </div>
+    </AppShell>
   );
 }

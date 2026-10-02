@@ -1,100 +1,99 @@
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
+import PageHeader from "@/components/PageHeader";
+import EmptyState from "@/components/EmptyState";
+import { getSession } from "@/lib/auth/session";
+import { prisma } from "@/lib/db/prisma";
+import { redirect } from "next/navigation";
 
-export default function DsaPage() {
+export default async function DsaPage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const records = await prisma.dsaSubmission.findMany({
+    where: { userId: session.userId },
+    orderBy: { solvedAt: "desc" },
+  });
+
+  const total = records.length;
+  const easy = records.filter((r) => r.difficulty === "Easy").length;
+  const medium = records.filter((r) => r.difficulty === "Medium").length;
+  const hard = records.filter((r) => r.difficulty === "Hard").length;
+
   return (
-    <main className="min-h-screen bg-gray-50">
-      <Navbar />
+    <AppShell>
+      <PageHeader
+        eyebrow="Data Structures & Algorithms"
+        title="DSA Progression"
+        description="Track your solved problems and topic mastery."
+      />
 
-      {/* Page Content */}
-      <section className="mx-auto max-w-6xl px-6 py-10">
-        <div className="text-center">
-          <p className="text-sm font-semibold text-blue-600">
-            CSE Technical Practice
-          </p>
-
-          <h2 className="mt-2 text-4xl font-bold text-gray-950">
-            DSA Practice
-          </h2>
-
-          <p className="mx-auto mt-4 max-w-2xl text-gray-600">
-            Practice Data Structures and Algorithms and improve your
-            problem-solving skills step by step.
-          </p>
+      <div className="mt-8 grid gap-6 sm:grid-cols-4 mb-8">
+        <div className="rounded-xl border border-white/10 bg-slate-900/60 p-5 backdrop-blur-md">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Solved</p>
+          <p className="mt-2 text-3xl font-black text-white">{total}</p>
         </div>
-
-        {/* Topics */}
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-xl border border-gray-300 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-950">
-              Arrays
-            </h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Practice array-based problems and techniques.
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-gray-300 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-950">
-              Strings
-            </h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Solve string manipulation and pattern problems.
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-gray-300 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-950">
-              Linked Lists
-            </h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Practice singly and doubly linked list problems.
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-gray-300 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-950">
-              Stacks & Queues
-            </h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Learn and practice stack and queue-based problems.
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-gray-300 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-950">
-              Searching & Sorting
-            </h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Practice important searching and sorting algorithms.
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-gray-300 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-950">
-              Trees & Graphs
-            </h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Build your understanding of advanced data structures.
-            </p>
-          </div>
+        <div className="rounded-xl border border-white/10 bg-slate-900/60 p-5 backdrop-blur-md">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Easy</p>
+          <p className="mt-2 text-3xl font-black text-emerald-400">{easy}</p>
         </div>
-
-        {/* Practice Placeholder */}
-        <div className="mt-10 rounded-2xl border-2 border-dashed border-blue-300 bg-white p-8 text-center">
-          <h3 className="text-xl font-bold text-gray-950">
-            DSA Problem Practice
-          </h3>
-
-          <p className="mx-auto mt-3 max-w-2xl text-gray-600">
-            Problems, difficulty levels, solutions, progress tracking,
-            and personalized DSA recommendations will be added later.
-          </p>
-
-          <p className="mt-4 text-sm font-medium text-blue-600">
-            DSA functionality will be added in a later stage.
-          </p>
+        <div className="rounded-xl border border-white/10 bg-slate-900/60 p-5 backdrop-blur-md">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Medium</p>
+          <p className="mt-2 text-3xl font-black text-amber-400">{medium}</p>
         </div>
-      </section>
-    </main>
+        <div className="rounded-xl border border-white/10 bg-slate-900/60 p-5 backdrop-blur-md">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Hard</p>
+          <p className="mt-2 text-3xl font-black text-rose-400">{hard}</p>
+        </div>
+      </div>
+
+      {records.length === 0 ? (
+        <EmptyState
+          tone="emerald"
+          title="No DSA records found"
+          description="You haven't logged any solved problems yet."
+        >
+          <button className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500">
+            Log First Problem
+          </button>
+        </EmptyState>
+      ) : (
+        <div className="overflow-hidden rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-md">
+          <table className="w-full text-left text-sm text-slate-300">
+            <thead className="bg-[#090d16] text-xs uppercase text-slate-400">
+              <tr>
+                <th className="px-6 py-4 font-medium">Problem</th>
+                <th className="px-6 py-4 font-medium">Topic</th>
+                <th className="px-6 py-4 font-medium">Difficulty</th>
+                <th className="px-6 py-4 font-medium">Platform</th>
+                <th className="px-6 py-4 font-medium">Solved At</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {records.map((r) => (
+                <tr key={r.id} className="hover:bg-white/5 transition">
+                  <td className="px-6 py-4 font-medium text-white">{r.title}</td>
+                  <td className="px-6 py-4">{r.topic}</td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                        r.difficulty === "Easy"
+                          ? "bg-emerald-500/20 text-emerald-400"
+                          : r.difficulty === "Medium"
+                          ? "bg-amber-500/20 text-amber-400"
+                          : "bg-rose-500/20 text-rose-400"
+                      }`}
+                    >
+                      {r.difficulty}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">{r.platform}</td>
+                  <td className="px-6 py-4">{new Date(r.solvedAt).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </AppShell>
   );
 }

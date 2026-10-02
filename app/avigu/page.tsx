@@ -1,32 +1,24 @@
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
+import PageHeader from "@/components/PageHeader";
 import AviguChat from "@/components/AviguChat";
 
 export default function AviguPage() {
   return (
-    <main className="min-h-screen bg-gray-50">
-      <Navbar />
+    <AppShell maxWidth="max-w-5xl">
+      <PageHeader
+        align="center"
+        eyebrow="AI Academic Agent"
+        title={
+          <>
+            Meet <span className="gradient-text font-black">Avigu</span> 🤖
+          </>
+        }
+        description="Avigu analyses your academic questions and helps you decide what to study, where to improve, and how to prepare for KTU examinations."
+      />
 
-      <section className="mx-auto max-w-5xl px-6 py-10">
-        <div className="text-center">
-          <p className="text-sm font-semibold text-blue-600">
-            Your AI Academic Agent
-          </p>
-
-          <h1 className="mt-2 text-4xl font-bold text-gray-950">
-            Meet Avigu 🤖
-          </h1>
-
-          <p className="mx-auto mt-4 max-w-2xl text-gray-600">
-            Avigu analyses your academic performance and helps you decide
-            what to study, where to improve, and how to prepare for your
-            KTU public examinations.
-          </p>
-        </div>
-
-        <div className="mt-10">
-          <AviguChat />
-        </div>
-      </section>
-    </main>
+      <div className="mt-10">
+        <AviguChat />
+      </div>
+    </AppShell>
   );
 }

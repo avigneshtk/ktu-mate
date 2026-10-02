@@ -34,3 +34,62 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## FE-AA2 — Interactive 3D Experience
+
+### Interactive 3D Study Desk
+
+KTU Mate includes a lightweight interactive 3D study desk built with React Three Fiber and Three.js.
+
+The scene contains:
+
+- Laptop
+- Study book
+- Coffee cup
+- Desk
+
+### Interaction
+
+The experience supports:
+
+- Orbit controls for rotating the scene
+- Scroll/touch zoom
+- Clicking the study book changes its material color
+
+### Responsible Loading
+
+The 3D scene is lazy-loaded so the Three.js experience is not loaded as part of the initial page render.
+
+A static fallback is used when:
+
+- The user prefers reduced motion
+- The device reports 2 or fewer logical CPU cores
+
+The scene uses simple primitive geometries instead of a large external 3D model, keeping the experience lightweight.
+
+### Mobile Support
+
+The experience supports mouse and touch interaction through React Three Fiber's OrbitControls.
+
+The canvas height also adapts for smaller screens.
+
+### FE-10 Performance Check
+
+Lighthouse desktop audit:
+
+- Performance: 100/100
+- First Contentful Paint: 0.5 s
+- Largest Contentful Paint: 0.6 s
+- Total Blocking Time: 0 ms
+- Cumulative Layout Shift: 0
+- Speed Index: 0.5 s
+
+The scene intentionally uses lightweight primitive geometry and does not load a large GLB/GLTF model. The 3D canvas is also lazy-loaded and has a static fallback for reduced-motion and low-power contexts.
+
+### What I Would Add With More Time
+
+- More detailed 3D study objects
+- Interactive laptop screen
+- Custom 3D models
+- More material/color customization
+- Small animations and ambient effects

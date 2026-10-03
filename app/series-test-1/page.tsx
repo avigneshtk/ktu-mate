@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import PageHeader from "@/components/PageHeader";
 
@@ -13,12 +13,30 @@ type SeriesMark = {
   createdAt: string;
 };
 
+type SubjectRow = {
+  id: number;
+  subjectCode: string;
+  subjectName: string;
+  marksScored: string;
+  maxMarks: string;
+};
+
+function createSubjectRow(id: number): SubjectRow {
+  return {
+    id,
+    subjectCode: "",
+    subjectName: "",
+    marksScored: "",
+    maxMarks: "50",
+  };
+}
+
 export default function SeriesTest1Page() {
   const [marks, setMarks] = useState<SeriesMark[]>([]);
-  const [subjectCode, setSubjectCode] = useState("");
-  const [subjectName, setSubjectName] = useState("");
-  const [marksScored, setMarksScored] = useState("");
-  const [maxMarks, setMaxMarks] = useState("50");
+  const [subjects, setSubjects] = useState<SubjectRow[]>([
+    createSubjectRow(1),
+  ]);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -27,8 +45,9 @@ export default function SeriesTest1Page() {
   async function loadMarks() {
     try {
       setLoading(true);
+      setError("");
 
-      const response = await fetch("/api/series-marks");
+      const response = await fetch("/api/series-marks?test=1");
       const data = await response.json();
 
       if (!response.ok) {
@@ -49,43 +68,114 @@ export default function SeriesTest1Page() {
     loadMarks();
   }, []);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function updateSubject(
+    id: number,
+    field: keyof SubjectRow,
+    value: string
+  ) {
+    setSubjects((current) =>
+      current.map((subject) =>
+        subject.id === id
+          ? { ...subject, [field]: value }
+          : subject
+      )
+    );
+  }
 
+  function addSubject() {
+    setSubjects((current) => [
+      ...current,
+      createSubjectRow(Date.now()),
+    ]);
+  }
+
+  function removeSubject(id: number) {
+    setSubjects((current) => {
+      if (current.length === 1) {
+        return current;
+      }
+
+      return current.filter((subject) => subject.id !== id);
+    });
+  }
+
+  async function handleSubmit() {
     setError("");
     setSuccess("");
+
+    for (const subject of subjects) {
+      if (
+        !subject.subjectCode.trim() ||
+        !subject.subjectName.trim() ||
+        !subject.marksScored ||
+        !subject.maxMarks
+      ) {
+        setError("Please fill all fields for every subject.");
+        return;
+      }
+
+      const scored = Number(subject.marksScored);
+      const maximum = Number(subject.maxMarks);
+
+      if (
+        !Number.isFinite(scored) ||
+        !Number.isFinite(maximum) ||
+        maximum <= 0 ||
+        scored < 0 ||
+        scored > maximum
+      ) {
+        setError(
+          `Invalid marks for ${subject.subjectName || "a subject"}.`
+        );
+        return;
+      }
+    }
+
     setSaving(true);
 
     try {
-      const response = await fetch("/api/series-marks", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          subjectCode,
-          subjectName,
-          marksScored: Number(marksScored),
-          maxMarks: Number(maxMarks),
-        }),
-      });
+      const savedMarks: SeriesMark[] = [];
 
-      const data = await response.json();
+      for (const subject of subjects) {
+        const response = await fetch("/api/series-marks", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            seriesTest: 1,
+            subjectCode: subject.subjectCode.trim(),
+            subjectName: subject.subjectName.trim(),
+            marksScored: Number(subject.marksScored),
+            maxMarks: Number(subject.maxMarks),
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to save marks");
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || `Failed to save ${subject.subjectName}`
+          );
+        }
+
+        savedMarks.push(data.mark);
       }
 
-      setMarks((current) => [data.mark, ...current]);
+      setMarks((current) => [...savedMarks.reverse(), ...current]);
 
-      setSubjectCode("");
-      setSubjectName("");
-      setMarksScored("");
+      setSubjects([createSubjectRow(Date.now())]);
 
-      setSuccess("Marks saved successfully.");
+      setSuccess(
+        `${savedMarks.length} subject${
+          savedMarks.length > 1 ? "s" : ""
+        } saved successfully.`
+      );
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to save marks"
+        err instanceof Error
+          ? err.message
+          : "Failed to save marks"
       );
     } finally {
       setSaving(false);
@@ -112,103 +202,139 @@ export default function SeriesTest1Page() {
       <PageHeader
         eyebrow="Academic Performance"
         title="Series Test 1"
-        description="Enter your Series Test 1 marks and track your performance."
+        description="Enter all your Series Test 1 subject marks together."
       />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1.2fr]">
         {/* Add Marks */}
         <section className="rounded-2xl border border-white/10 bg-slate-900/40 p-6">
-          <h2 className="text-xl font-bold text-white">
-            Add Marks
-          </h2>
+          <div>
+            <h2 className="text-xl font-bold text-white">
+              Add Subject Marks
+            </h2>
 
-          <p className="mt-1 text-sm text-slate-400">
-            Save your subject-wise Series Test 1 marks.
-          </p>
+            <p className="mt-1 text-sm text-slate-400">
+              Add multiple subjects and save them together.
+            </p>
+          </div>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div>
-              <label
-                htmlFor="subjectCode"
-                className="mb-2 block text-sm font-medium text-slate-300"
+          <div className="mt-6 space-y-4">
+            {subjects.map((subject, index) => (
+              <div
+                key={subject.id}
+                className="rounded-xl border border-white/10 bg-slate-950/40 p-4"
               >
-                Subject Code
-              </label>
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="font-semibold text-white">
+                    Subject {index + 1}
+                  </h3>
 
-              <input
-                id="subjectCode"
-                value={subjectCode}
-                onChange={(event) => setSubjectCode(event.target.value)}
-                placeholder="Example: PCCST301"
-                required
-                className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-purple-500"
-              />
-            </div>
+                  {subjects.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeSubject(subject.id)}
+                      className="text-sm font-medium text-red-400 transition hover:text-red-300"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
 
-            <div>
-              <label
-                htmlFor="subjectName"
-                className="mb-2 block text-sm font-medium text-slate-300"
-              >
-                Subject Name
-              </label>
+                <div className="space-y-4">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      Subject Code
+                    </label>
 
-              <input
-                id="subjectName"
-                value={subjectName}
-                onChange={(event) => setSubjectName(event.target.value)}
-                placeholder="Example: Data Structures"
-                required
-                className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-purple-500"
-              />
-            </div>
+                    <input
+                      value={subject.subjectCode}
+                      onChange={(event) =>
+                        updateSubject(
+                          subject.id,
+                          "subjectCode",
+                          event.target.value
+                        )
+                      }
+                      placeholder="Example: PCCST301"
+                      className="w-full rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-purple-500"
+                    />
+                  </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label
-                  htmlFor="marksScored"
-                  className="mb-2 block text-sm font-medium text-slate-300"
-                >
-                  Marks Scored
-                </label>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      Subject Name
+                    </label>
 
-                <input
-                  id="marksScored"
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={marksScored}
-                  onChange={(event) =>
-                    setMarksScored(event.target.value)
-                  }
-                  placeholder="42"
-                  required
-                  className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-purple-500"
-                />
+                    <input
+                      value={subject.subjectName}
+                      onChange={(event) =>
+                        updateSubject(
+                          subject.id,
+                          "subjectName",
+                          event.target.value
+                        )
+                      }
+                      placeholder="Example: Data Structures"
+                      className="w-full rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Marks Scored
+                      </label>
+
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.5"
+                        value={subject.marksScored}
+                        onChange={(event) =>
+                          updateSubject(
+                            subject.id,
+                            "marksScored",
+                            event.target.value
+                          )
+                        }
+                        placeholder="42"
+                        className="w-full rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-purple-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Maximum Marks
+                      </label>
+
+                      <input
+                        type="number"
+                        min="1"
+                        step="0.5"
+                        value={subject.maxMarks}
+                        onChange={(event) =>
+                          updateSubject(
+                            subject.id,
+                            "maxMarks",
+                            event.target.value
+                          )
+                        }
+                        className="w-full rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-purple-500"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
+            ))}
 
-              <div>
-                <label
-                  htmlFor="maxMarks"
-                  className="mb-2 block text-sm font-medium text-slate-300"
-                >
-                  Maximum Marks
-                </label>
-
-                <input
-                  id="maxMarks"
-                  type="number"
-                  min="1"
-                  step="0.5"
-                  value={maxMarks}
-                  onChange={(event) =>
-                    setMaxMarks(event.target.value)
-                  }
-                  required
-                  className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-purple-500"
-                />
-              </div>
-            </div>
+            {/* Add Subject */}
+            <button
+              type="button"
+              onClick={addSubject}
+              className="w-full rounded-xl border border-dashed border-purple-500/40 bg-purple-500/5 px-4 py-3 font-semibold text-purple-300 transition hover:border-purple-400 hover:bg-purple-500/10"
+            >
+              + Add Subject
+            </button>
 
             {error && (
               <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
@@ -223,13 +349,14 @@ export default function SeriesTest1Page() {
             )}
 
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               disabled={saving}
               className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 px-4 py-3 font-semibold text-white shadow-lg shadow-purple-600/20 transition hover:from-purple-500 hover:to-cyan-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {saving ? "Saving..." : "Add Marks"}
+              {saving ? "Saving Marks..." : "Save All Marks"}
             </button>
-          </form>
+          </div>
         </section>
 
         {/* Summary */}
@@ -249,20 +376,29 @@ export default function SeriesTest1Page() {
               <p className="text-2xl font-black text-purple-300">
                 {percentage}%
               </p>
-              <p className="text-xs text-slate-400">Overall</p>
+
+              <p className="text-xs text-slate-400">
+                Overall
+              </p>
             </div>
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-3">
             <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-              <p className="text-xs text-slate-400">Subjects</p>
+              <p className="text-xs text-slate-400">
+                Subjects
+              </p>
+
               <p className="mt-1 text-2xl font-bold text-white">
                 {marks.length}
               </p>
             </div>
 
             <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-              <p className="text-xs text-slate-400">Total</p>
+              <p className="text-xs text-slate-400">
+                Total
+              </p>
+
               <p className="mt-1 text-2xl font-bold text-white">
                 {totalScored}/{totalMaximum}
               </p>
@@ -281,7 +417,7 @@ export default function SeriesTest1Page() {
                 </p>
 
                 <p className="mt-1 text-sm text-slate-400">
-                  Add your first subject using the form.
+                  Add your first subjects using the form.
                 </p>
               </div>
             ) : (

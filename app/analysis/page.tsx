@@ -127,19 +127,61 @@ export default async function AnalysisPage() {
         description="Track your internal marks and identify subjects that need more revision."
       />
 
+      {/* Series Test Navigation */}
+      <div className="mt-8 rounded-2xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-md">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-white">
+              Series Test Marks
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-400">
+              Add or update your Series Test marks.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <a
+              href="/series-test-1"
+              className="rounded-xl bg-purple-600 px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-purple-500"
+            >
+              + Series Test 1
+            </a>
+
+            <a
+              href="/series-test-2"
+              className="rounded-xl bg-cyan-600 px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-cyan-500"
+            >
+              + Series Test 2
+            </a>
+          </div>
+        </div>
+      </div>
+
       {seriesMarks.length === 0 ? (
-        <EmptyState
-          tone="purple"
-          title="No Series Marks Logged"
-          description="Log your Series Test 1 and Series Test 2 scores to generate your academic analysis."
-        >
-          <a
-            href="/series-test-1"
-            className="mt-4 inline-block rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-500"
+        <div className="mt-8">
+          <EmptyState
+            tone="purple"
+            title="No Series Marks Logged"
+            description="Add your Series Test 1 or Series Test 2 scores to generate your academic analysis."
           >
-            Add Series 1 Marks
-          </a>
-        </EmptyState>
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <a
+                href="/series-test-1"
+                className="inline-block rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-500"
+              >
+                Add Series 1 Marks
+              </a>
+
+              <a
+                href="/series-test-2"
+                className="inline-block rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-500"
+              >
+                Add Series 2 Marks
+              </a>
+            </div>
+          </EmptyState>
+        </div>
       ) : (
         <>
           {/* Overall Summary */}
@@ -148,6 +190,7 @@ export default async function AnalysisPage() {
               <p className="text-sm text-slate-400">
                 Overall Percentage
               </p>
+
               <p className="mt-2 text-3xl font-black text-purple-400">
                 {overallPercentage}%
               </p>
@@ -157,6 +200,7 @@ export default async function AnalysisPage() {
               <p className="text-sm text-slate-400">
                 Subjects
               </p>
+
               <p className="mt-2 text-3xl font-black text-white">
                 {subjects.length}
               </p>
@@ -166,6 +210,7 @@ export default async function AnalysisPage() {
               <p className="text-sm text-slate-400">
                 Series 1 Average
               </p>
+
               <p className="mt-2 text-3xl font-black text-cyan-400">
                 {averageSeries1}%
               </p>
@@ -175,6 +220,7 @@ export default async function AnalysisPage() {
               <p className="text-sm text-slate-400">
                 Series 2 Average
               </p>
+
               <p className="mt-2 text-3xl font-black text-emerald-400">
                 {averageSeries2}%
               </p>
@@ -198,6 +244,7 @@ export default async function AnalysisPage() {
                       <p className="font-bold text-slate-200">
                         {subject.subjectName}
                       </p>
+
                       <p className="text-xs text-slate-400">
                         {subject.subjectCode}
                       </p>
@@ -207,6 +254,7 @@ export default async function AnalysisPage() {
                       <p className="text-xl font-black text-purple-400">
                         {subject.percentage}%
                       </p>
+
                       <p className="text-xs text-slate-500">
                         {subject.scored}/{subject.maximum}
                       </p>

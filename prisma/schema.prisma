@@ -1,31 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
-  id            String          @id @default(cuid())
-  email         String          @unique
-  passwordHash  String
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-
-  profile       Profile?
-  dsaRecords    DsaSubmission[]
-  studyStreak   StudyStreak?
-  timetable     TimetableItem[]
-  seriesMarks   SeriesMark[]
-  chatSessions  ChatSession[]
+  id               String          @id @default(cuid())
+  email            String          @unique
+  passwordHash     String
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  leetcodeUsername String?
+  chatSessions     ChatSession[]
+  dsaRecords       DsaSubmission[]
+  profile          Profile?
+  seriesMarks      SeriesMark[]
+  studyStreak      StudyStreak?
+  timetable        TimetableItem[]
 }
 
 model Profile {
   id           String   @id @default(cuid())
   userId       String   @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   fullName     String
   username     String   @unique
   college      String   @default("KTU Affiliated College")
@@ -36,74 +35,75 @@ model Profile {
   avatarUrl    String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model DsaSubmission {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problemId   String
-  title       String
-  difficulty  String   // "Easy", "Medium", "Hard"
-  topic       String   // "Arrays", "Strings", "Trees", etc.
-  platform    String   @default("LeetCode") // "LeetCode", "KTU Labs", "Custom"
-  status      String   @default("Solved")   // "Solved", "Attempted", "Bookmarked"
-  notes       String?
-  solvedAt    DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String
+  problemId  String
+  title      String
+  difficulty String
+  topic      String
+  platform   String   @default("LeetCode")
+  status     String   @default("Solved")
+  notes      String?
+  solvedAt   DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, topic])
   @@index([userId, difficulty])
 }
 
 model StudyStreak {
-  id           String   @id @default(cuid())
-  userId       String   @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  currentStreak Int     @default(1)
-  bestStreak   Int      @default(1)
-  totalDays    Int      @default(1)
-  lastActiveAt DateTime @default(now())
-  activityLogs String   @default("[]") // JSON string of active dates
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  currentStreak Int      @default(1)
+  bestStreak    Int      @default(1)
+  totalDays     Int      @default(1)
+  lastActiveAt  DateTime @default(now())
+  activityLogs  String   @default("[]")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model TimetableItem {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  dayOfWeek   String   // "Monday", "Tuesday", etc.
-  subject     String
-  startTime   String   // "09:00"
-  endTime     String   // "10:00"
-  room        String?
-  isLab       Boolean  @default(false)
+  id        String  @id @default(cuid())
+  userId    String
+  dayOfWeek String
+  subject   String
+  startTime String
+  endTime   String
+  room      String?
+  isLab     Boolean @default(false)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model SeriesMark {
   id          String   @id @default(cuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  seriesTest  Int      // 1 or 2
+  seriesTest  Int
   subjectCode String
   subjectName String
   marksScored Float
   maxMarks    Float    @default(50.0)
   createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ChatSession {
   id        String        @id @default(cuid())
   userId    String
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String        @default("Study Discussion")
   createdAt DateTime      @default(now())
   messages  ChatMessage[]
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ChatMessage {
   id        String      @id @default(cuid())
   sessionId String
-  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  role      String      // "user" | "assistant"
+  role      String
   content   String
   createdAt DateTime    @default(now())
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }

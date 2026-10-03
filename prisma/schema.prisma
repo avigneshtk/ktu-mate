@@ -8,18 +8,21 @@ datasource db {
 }
 
 model User {
-  id               String          @id @default(cuid())
-  email            String          @unique
-  passwordHash     String
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  leetcodeUsername String?
-  chatSessions     ChatSession[]
-  dsaRecords       DsaSubmission[]
-  profile          Profile?
-  seriesMarks      SeriesMark[]
-  studyStreak      StudyStreak?
-  timetable        TimetableItem[]
+  id                            String          @id @default(cuid())
+  email                         String          @unique
+  passwordHash                  String
+  createdAt                     DateTime        @default(now())
+  updatedAt                     DateTime        @updatedAt
+  leetcodeUsername              String?
+  leetcodeVerified              Boolean         @default(false)
+  leetcodeVerificationHash      String?
+  leetcodeVerificationExpiresAt DateTime?
+  chatSessions                  ChatSession[]
+  dsaRecords                    DsaSubmission[]
+  profile                       Profile?
+  seriesMarks                   SeriesMark[]
+  studyStreak                   StudyStreak?
+  timetable                     TimetableItem[]
 }
 
 model Profile {
@@ -109,12 +112,12 @@ model ChatMessage {
 }
 
 model EmailVerificationCode {
-  id         String   @id @default(cuid())
-  email      String
-  codeHash   String
-  expiresAt  DateTime
-  attempts   Int      @default(0)
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  email     String
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
 
   @@index([email])
 }

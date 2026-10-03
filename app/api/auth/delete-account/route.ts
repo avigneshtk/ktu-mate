@@ -11,6 +11,8 @@ const deleteAccountSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+const DEMO_EMAIL = "student@ktu.edu.in";
+
 export async function DELETE(req: Request) {
   try {
     const session = await getSession();
@@ -44,6 +46,7 @@ export async function DELETE(req: Request) {
       },
       select: {
         id: true,
+        email: true,
         passwordHash: true,
       },
     });
@@ -52,6 +55,17 @@ export async function DELETE(req: Request) {
       return NextResponse.json(
         { ok: false, error: "User account not found" },
         { status: 404 }
+      );
+    }
+
+    // Protect the permanent demo account.
+    if (user.email.toLowerCase() === DEMO_EMAIL) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "The demo account cannot be deleted.",
+        },
+        { status: 403 }
       );
     }
 

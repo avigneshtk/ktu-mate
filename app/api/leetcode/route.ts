@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import {
+  generateVerificationCode,
+  hashVerificationCode,
+} from "@/lib/leetcode/verification";
 
 type LeetCodeStats = {
   totalSolved: number;
@@ -13,6 +17,65 @@ type SubmissionStat = {
   difficulty: string;
   count: number;
 };
+
+type LeetCodeProfile = {
+  username: string;
+  aboutMe: string;
+};
+
+async function getLeetCodeProfile(
+  username: string
+): Promise<LeetCodeProfile | null> {
+  const query = `
+    query userProfile($username: String!) {
+      matchedUser(username: $username) {
+        username
+        profile {
+          aboutMe
+        }
+      }
+    }
+  `;
+
+  const response = await fetch("https://leetcode.com/graphql", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/154.0.0.0 Safari/537.36",
+      Referer: `https://leetcode.com/u/${username}/`,
+    },
+    body: JSON.stringify({
+      query,
+      variables: {
+        username,
+      },
+    }),
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`LeetCode returned HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  if (data?.errors?.length) {
+    console.error("LeetCode GraphQL errors:", data.errors);
+    return null;
+  }
+
+  const matchedUser = data?.data?.matchedUser;
+
+  if (!matchedUser) {
+    return null;
+  }
+
+  return {
+    username: matchedUser.username,
+    aboutMe: matchedUser.profile?.aboutMe ?? "",
+  };
+}
 
 async function getLeetCodeStats(
   username: string
@@ -49,9 +112,7 @@ async function getLeetCodeStats(
   });
 
   if (!response.ok) {
-    throw new Error(
-      `LeetCode returned HTTP ${response.status}`
-    );
+    throw new Error(`LeetCode returned HTTP ${response.status}`);
   }
 
   const data = await response.json();
@@ -78,7 +139,6 @@ async function getLeetCodeStats(
   const easy = getCount("Easy");
   const medium = getCount("Medium");
   const hard = getCount("Hard");
-
   const totalFromApi = getCount("All");
 
   const totalSolved =
@@ -114,6 +174,7 @@ export async function GET() {
       },
       select: {
         leetcodeUsername: true,
+        leetcodeVerified: true,
       },
     });
 
@@ -121,6 +182,7 @@ export async function GET() {
       return NextResponse.json({
         ok: true,
         username: null,
+        verified: false,
         stats: null,
       });
     }
@@ -133,6 +195,7 @@ export async function GET() {
       return NextResponse.json({
         ok: true,
         username: user.leetcodeUsername,
+        verified: user.leetcodeVerified,
         stats: null,
         error:
           "Unable to fetch LeetCode statistics right now.",
@@ -142,6 +205,7 @@ export async function GET() {
     return NextResponse.json({
       ok: true,
       username: user.leetcodeUsername,
+      verified: user.leetcodeVerified,
       stats,
     });
   } catch (error) {
@@ -174,9 +238,7 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    const username = String(
-      body.username || ""
-    ).trim();
+    const username = String(body.username || "").trim();
 
     if (!username) {
       return NextResponse.json(
@@ -188,9 +250,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const stats = await getLeetCodeStats(username);
+    const profile = await getLeetCodeProfile(username);
 
-    if (!stats) {
+    if (!profile) {
       return NextResponse.json(
         {
           ok: false,
@@ -201,12 +263,36 @@ export async function POST(request: Request) {
       );
     }
 
+    const stats = await getLeetCodeStats(username);
+
+    if (!stats) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Unable to fetch LeetCode statistics right now.",
+        },
+        { status: 502 }
+      );
+    }
+
+    const verificationCode = generateVerificationCode();
+    const verificationHash =
+      hashVerificationCode(verificationCode);
+
+    const expiresAt = new Date(
+      Date.now() + 15 * 60 * 1000
+    );
+
     const user = await prisma.user.update({
       where: {
         id: session.userId,
       },
       data: {
         leetcodeUsername: username,
+        leetcodeVerified: false,
+        leetcodeVerificationHash: verificationHash,
+        leetcodeVerificationExpiresAt: expiresAt,
       },
       select: {
         leetcodeUsername: true,
@@ -217,10 +303,15 @@ export async function POST(request: Request) {
       ok: true,
       username: user.leetcodeUsername,
       stats,
+      verified: false,
+      verificationCode,
+      expiresAt,
+      message:
+        "Add this verification code to your LeetCode About Me section, then verify ownership.",
     });
   } catch (error) {
     console.error(
-      "Connect LeetCode account error:",
+      "Start LeetCode verification error:",
       error
     );
 
@@ -228,7 +319,7 @@ export async function POST(request: Request) {
       {
         ok: false,
         error:
-          "Unable to verify the LeetCode account right now.",
+          "Unable to start LeetCode verification right now.",
       },
       { status: 502 }
     );
@@ -255,6 +346,9 @@ export async function DELETE() {
       },
       data: {
         leetcodeUsername: null,
+        leetcodeVerified: false,
+        leetcodeVerificationHash: null,
+        leetcodeVerificationExpiresAt: null,
       },
     });
 

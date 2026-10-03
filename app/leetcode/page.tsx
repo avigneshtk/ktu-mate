@@ -19,6 +19,7 @@ export default async function LeetCodePage() {
     },
     select: {
       leetcodeUsername: true,
+      leetcodeVerified: true,
     },
   });
 
@@ -33,6 +34,7 @@ export default async function LeetCodePage() {
       <div className="mt-8">
         <LeetCodeConnect
           initialUsername={user?.leetcodeUsername ?? null}
+          initialVerified={user?.leetcodeVerified ?? false}
         />
       </div>
 

@@ -22,12 +22,27 @@ export default function ShaderHero() {
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
+      powerPreference: "high-performance",
     });
 
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    const updateRendererSize = () => {
+      const width = container.clientWidth || window.innerWidth;
+      const height = container.clientHeight || window.innerHeight;
+
+      renderer.setPixelRatio(
+        Math.min(window.devicePixelRatio, 1.5)
+      );
+
+      renderer.setSize(width, height, false);
+
+      material.uniforms.u_resolution.value.set(width, height);
+    };
 
     container.appendChild(renderer.domElement);
+
+    renderer.domElement.style.width = "100%";
+    renderer.domElement.style.height = "100%";
+    renderer.domElement.style.display = "block";
 
     const geometry = new THREE.PlaneGeometry(2, 2);
 
@@ -38,14 +53,14 @@ export default function ShaderHero() {
         u_time: { value: 0 },
         u_resolution: {
           value: new THREE.Vector2(
-            window.innerWidth,
-            window.innerHeight
+            container.clientWidth || window.innerWidth,
+            container.clientHeight || window.innerHeight
           ),
         },
         u_mouse: {
           value: new THREE.Vector2(
-            window.innerWidth / 2,
-            window.innerHeight / 2
+            (container.clientWidth || window.innerWidth) / 2,
+            (container.clientHeight || window.innerHeight) / 2
           ),
         },
       },
@@ -61,28 +76,23 @@ export default function ShaderHero() {
     let isPageVisible = !document.hidden;
 
     const handleResize = () => {
-      renderer.setSize(window.innerWidth, window.innerHeight);
-
-      renderer.setPixelRatio(
-        Math.min(window.devicePixelRatio, 2)
-      );
-
-      material.uniforms.u_resolution.value.set(
-        window.innerWidth,
-        window.innerHeight
-      );
+      updateRendererSize();
     };
 
     const handleMouseMove = (event: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+
       material.uniforms.u_mouse.value.set(
-        event.clientX,
-        window.innerHeight - event.clientY
+        event.clientX - rect.left,
+        rect.height - (event.clientY - rect.top)
       );
     };
 
     const handleVisibilityChange = () => {
       isPageVisible = !document.hidden;
     };
+
+    updateRendererSize();
 
     window.addEventListener("resize", handleResize);
     window.addEventListener("mousemove", handleMouseMove);
@@ -99,7 +109,7 @@ export default function ShaderHero() {
 
       if (!prefersReducedMotion) {
         material.uniforms.u_time.value =
-        (performance.now() - startTime) / 1000;
+          (performance.now() - startTime) / 1000;
       }
 
       renderer.render(scene, camera);
@@ -134,10 +144,10 @@ export default function ShaderHero() {
   }, []);
 
   return (
-  <div
-    ref={containerRef}
-    className="fixed inset-0 z-0"
-    aria-hidden="true"
-  />
-);
+    <div
+      ref={containerRef}
+      className="absolute inset-0 z-0"
+      aria-hidden="true"
+    />
+  );
 }

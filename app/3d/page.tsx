@@ -1,8 +1,16 @@
 import AppShell from "@/components/AppShell";
 import PageHeader from "@/components/PageHeader";
 import StudySceneLoader from "./StudySceneLoader";
+import { getSession } from "@/lib/auth/session";
+import { redirect } from "next/navigation";
 
-export default function ThreeDPage() {
+export default async function ThreeDPage() {
+  const session = await getSession();
+
+  if (!session) {
+    redirect("/login");
+  }
+
   return (
     <AppShell maxWidth="max-w-6xl">
       <PageHeader

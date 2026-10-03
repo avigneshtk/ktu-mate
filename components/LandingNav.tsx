@@ -41,9 +41,10 @@ export default function LandingNav() {
               {link.label}
             </a>
           ))}
+
           <Link
             href="/3d"
-            className="text-sm font-medium text-cyan-400 transition hover:text-cyan-300"
+            className="rounded text-sm font-medium text-slate-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
           >
             3D Hub
           </Link>
@@ -70,7 +71,9 @@ export default function LandingNav() {
           onClick={() => setMenuOpen(!menuOpen)}
           aria-expanded={menuOpen}
           aria-controls="landing-mobile-nav"
-          aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-label={
+            menuOpen ? "Close navigation menu" : "Open navigation menu"
+          }
           className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-semibold text-slate-200 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 lg:hidden"
         >
           <span className="text-base" aria-hidden="true">
@@ -95,10 +98,11 @@ export default function LandingNav() {
               {link.label}
             </a>
           ))}
+
           <Link
             href="/3d"
             onClick={() => setMenuOpen(false)}
-            className="rounded-lg px-3.5 py-2.5 text-sm font-medium text-cyan-400 transition hover:bg-cyan-950/30 hover:text-cyan-300"
+            className="rounded-lg px-3.5 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
           >
             3D Hub
           </Link>
@@ -112,6 +116,7 @@ export default function LandingNav() {
           >
             Sign In
           </Link>
+
           <Link
             href="/signup"
             onClick={() => setMenuOpen(false)}

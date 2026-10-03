@@ -1,42 +1,30 @@
-import fs from "fs";
-import path from "path";
 import { google } from "googleapis";
 
-const CLIENT_FILE = path.join(
-  process.cwd(),
-  "gmail-oauth-client.json"
-);
-
-const TOKEN_FILE = path.join(
-  process.cwd(),
-  "gmail-token.json"
-);
-
 function createOAuthClient() {
-  if (!fs.existsSync(CLIENT_FILE)) {
-    throw new Error("gmail-oauth-client.json not found.");
+  const clientId = process.env.GMAIL_CLIENT_ID;
+  const clientSecret = process.env.GMAIL_CLIENT_SECRET;
+  const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
+
+  if (!clientId) {
+    throw new Error("GMAIL_CLIENT_ID is not configured.");
   }
 
-  if (!fs.existsSync(TOKEN_FILE)) {
-    throw new Error("gmail-token.json not found.");
+  if (!clientSecret) {
+    throw new Error("GMAIL_CLIENT_SECRET is not configured.");
   }
 
-  const credentials = JSON.parse(
-    fs.readFileSync(CLIENT_FILE, "utf8")
-  );
-
-  const tokens = JSON.parse(
-    fs.readFileSync(TOKEN_FILE, "utf8")
-  );
-
-  const { client_id, client_secret } = credentials.installed;
+  if (!refreshToken) {
+    throw new Error("GMAIL_REFRESH_TOKEN is not configured.");
+  }
 
   const oauth2Client = new google.auth.OAuth2(
-    client_id,
-    client_secret
+    clientId,
+    clientSecret
   );
 
-  oauth2Client.setCredentials(tokens);
+  oauth2Client.setCredentials({
+    refresh_token: refreshToken,
+  });
 
   return oauth2Client;
 }
@@ -49,9 +37,7 @@ function createRawEmail(
   const sender = process.env.GMAIL_SENDER_EMAIL;
 
   if (!sender) {
-    throw new Error(
-      "GMAIL_SENDER_EMAIL is not configured."
-    );
+    throw new Error("GMAIL_SENDER_EMAIL is not configured.");
   }
 
   const message = [
@@ -64,8 +50,7 @@ function createRawEmail(
     text,
   ].join("\r\n");
 
-  return Buffer.from(message)
-    .toString("base64url");
+  return Buffer.from(message).toString("base64url");
 }
 
 export async function sendEmail({

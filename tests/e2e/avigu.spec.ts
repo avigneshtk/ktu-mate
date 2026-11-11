@@ -1,6 +1,35 @@
+
 import { test, expect } from "@playwright/test";
+import { SignJWT } from "jose";
 
 test("Avigu primary chat flow", async ({ page }) => {
+  // Create a test-only authenticated session
+  const secret = new TextEncoder().encode(
+    process.env.AUTH_SECRET!
+  );
+
+  const token = await new SignJWT({
+    userId: "playwright-test-user",
+    email: "playwright@example.com",
+    username: "playwright",
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("7d")
+    .sign(secret);
+
+  // Add the authentication cookie
+  await page.context().addCookies([
+    {
+      name: "ktu_session",
+      value: token,
+      url: "http://localhost:3000",
+      httpOnly: true,
+      sameSite: "Lax",
+    },
+  ]);
+
+  // Mock the Avigu chat API
   await page.route("**/api/chat", async (route) => {
     const body = [
       `data: ${JSON.stringify({

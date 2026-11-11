@@ -1,3 +1,4 @@
+process.env.AUTH_SECRET ??= "ktu-mate-playwright-test-secret-2026";
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({

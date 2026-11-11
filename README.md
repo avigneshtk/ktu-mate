@@ -586,3 +586,7 @@ https://ktu-mate.vercel.app
 ## License
 
 This project is currently a personal/educational project by **Avignesh T K**.
+
+## Development
+
+KTU Mate is continuously evolving with new features and improvements.
